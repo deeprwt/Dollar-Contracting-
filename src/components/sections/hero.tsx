@@ -31,14 +31,24 @@ export function Hero() {
       />
       <div className="container-page relative pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-20">
         <div className="mx-auto max-w-4xl text-center">
-          <h1 className="wordmark mx-auto text-[clamp(2.5rem,7.5vw,5.5rem)] text-white">
-            <span className="block whitespace-nowrap">DOLLAR</span>
+          {/* Brand lockup, not the heading. The <h1> below carries the search
+              intent — a wordmark alone gives Google nothing to match a
+              "contractor in Thunder Bay" query against. */}
+          <p className="wordmark mx-auto text-[clamp(2.5rem,7.5vw,5.5rem)] text-white">
+            {/* The {" "} is load-bearing. Without it the two block spans sit
+                adjacent in the markup and textContent reads "DOLLARCONTRACTING
+                LTD." as one word — which is what crawlers extract. The space
+                collapses to nothing visually between two blocks. */}
+            <span className="block whitespace-nowrap">DOLLAR</span>{" "}
             <span className="block whitespace-nowrap text-[var(--brand)]">
               CONTRACTING LTD.
             </span>
+          </p>
+          <h1 className="mx-auto mt-5 max-w-2xl text-lg font-semibold text-white sm:text-xl">
+            Construction &amp; Renovation Contractor in Thunder Bay, Ontario
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base font-medium text-white/90 sm:text-lg">
-            is a trusted Northern Ontario construction company specializing in renovations, new homes, and multi-home developments with quality craftsmanship and reliable service.
+          <p className="mx-auto mt-3 max-w-2xl text-base font-medium text-white/90 sm:text-lg">
+            Dollar Contracting Ltd. is a trusted Northern Ontario construction company specializing in renovations, new homes, and multi-home developments with quality craftsmanship and reliable service.
           </p>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-white/65 sm:text-base">
             Serving Thunder Bay, Greenstone, Dryden, Pickle Lake, Fort William First Nation and Marathon with concrete,

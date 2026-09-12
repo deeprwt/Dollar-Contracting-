@@ -12,12 +12,32 @@ import {
 import { PageHero } from "@/components/sections/page-hero";
 import { CareerForm } from "@/components/forms/career-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { getPublishedJobBySlug, jobTypeLabel } from "@/lib/jobs";
+import { getPublishedJobBySlug, getPublishedJobs, jobTypeLabel } from "@/lib/jobs";
 import { pageMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 import { jobPostingLd, breadcrumbLd } from "@/lib/structured-data";
 
-export const dynamic = "force-dynamic";
+// Published job postings change rarely and are identical for every visitor, so
+// prerender and refresh on a window instead of rendering per request. The old
+// `force-dynamic` sent `Cache-Control: no-store`, which made these the slowest
+// and least crawl-friendly pages on the site. A newly published or pulled job
+// goes live within 5 minutes.
+export const revalidate = 300;
+
+// Prerender every published posting at build time so a crawler hitting one gets
+// a cached response rather than a cold Supabase round-trip. Jobs published
+// after the build still render on first request (dynamicParams defaults to
+// true) and are cached from then on. Guarded so a Supabase hiccup at build
+// degrades to on-demand rendering instead of failing the build — same reason
+// the sitemap wraps this call.
+export async function generateStaticParams() {
+  try {
+    const jobs = await getPublishedJobs();
+    return jobs.map((job) => ({ slug: job.slug }));
+  } catch {
+    return [];
+  }
+}
 
 function lines(input: string | null | undefined): string[] {
   if (!input) return [];

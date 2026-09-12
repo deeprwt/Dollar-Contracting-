@@ -3,7 +3,6 @@ import { services } from "./services";
 import type { Service, Faq } from "./services";
 import type { Location } from "./locations";
 import type { Job } from "./supabase/types";
-import { testimonials } from "./testimonials";
 
 /** Stable @id for the business node so other nodes can reference it. */
 const BUSINESS_ID = `${siteConfig.url}/#business`;
@@ -13,39 +12,12 @@ const sameAs = Object.values(siteConfig.social).filter(
   (url) => url && url !== "#",
 );
 
-/**
- * AggregateRating built from the testimonials shown on the site. Google requires
- * that rating markup reflects reviews genuinely displayed to users — ours are on
- * /testimonials and the home page — so this stays truthful and in sync.
- */
-function aggregateRating() {
-  const ratings = testimonials.map((t) => t.rating).filter((r) => r > 0);
-  if (ratings.length === 0) return undefined;
-  const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-  return {
-    "@type": "AggregateRating",
-    ratingValue: avg.toFixed(1),
-    reviewCount: ratings.length,
-    bestRating: 5,
-    worstRating: 1,
-  };
-}
-
-/** Individual Review nodes from real, displayed testimonials. */
-function reviewNodes() {
-  return testimonials.slice(0, 6).map((t) => ({
-    "@type": "Review",
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: t.rating,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    author: { "@type": "Person", name: t.name },
-    reviewBody: t.quote,
-    ...(t.project ? { name: t.project } : {}),
-  }));
-}
+// NOTE: no `aggregateRating` / `review` on the business node below.
+// Google does not use self-serving reviews — ratings a business publishes about
+// itself on its own site — for LocalBusiness review snippets, so the markup
+// earned no stars while still being the kind of thing that draws a structured
+// data manual action. Star ratings for this business come from its Google
+// Business Profile instead. Reviews still render for humans on /testimonials.
 
 /** The full service list as an OfferCatalog — tells Google every service we offer. */
 function serviceOfferCatalog() {
@@ -141,8 +113,6 @@ export function localBusinessLd() {
       "Commercial construction",
     ],
     hasOfferCatalog: serviceOfferCatalog(),
-    ...(aggregateRating() ? { aggregateRating: aggregateRating() } : {}),
-    review: reviewNodes(),
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
@@ -163,14 +133,23 @@ export function faqPageLd(faqs: Faq[]) {
   };
 }
 
-/** WebSite node — links the domain to the brand. */
+/**
+ * WebSite node — links the domain to the brand.
+ *
+ * This is the highest-priority source Google uses for the site name shown above
+ * the URL in search results. It falls back to printing the bare domain when the
+ * signals disagree, so `name` here, `og:site_name` and `application-name` must
+ * all carry the same string, and the short form goes in `alternateName` rather
+ * than contradicting `name` somewhere else.
+ */
 export function websiteLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     url: siteConfig.url,
-    name: siteConfig.name,
+    name: siteConfig.siteName,
+    alternateName: siteConfig.name,
     publisher: { "@id": BUSINESS_ID },
   };
 }

@@ -1,6 +1,12 @@
 export const siteConfig = {
   name: "Dollar Contracting",
   shortName: "Dollar Contracting",
+  // The name Google is asked to print above the URL in search results (its
+  // "site name" feature). Kept separate from `name` on purpose: `name` is the
+  // short form that suffixes every page <title>, and the titles are already at
+  // the length limit. Google is given the long form as WebSite.name and the
+  // short form as alternateName, which is exactly what alternateName is for.
+  siteName: "Dollar Contracting Ltd",
   tagline: "Building better futures, one project at a time.",
   description:
     "Thunder Bay's trusted construction and renovation company. Concrete, masonry, carpentry, full interior and exterior renovations across Northern Ontario.",

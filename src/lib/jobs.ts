@@ -1,8 +1,8 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/server";
 import type { Job } from "@/lib/supabase/types";
 
 export async function getPublishedJobs(): Promise<Job[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const { data } = await supabase
     .from("jobs")
     .select("*")
@@ -12,7 +12,7 @@ export async function getPublishedJobs(): Promise<Job[]> {
 }
 
 export async function getPublishedJobBySlug(slug: string): Promise<Job | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const { data } = await supabase
     .from("jobs")
     .select("*")

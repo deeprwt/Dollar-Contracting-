@@ -21,7 +21,12 @@ import { siteConfig } from "@/lib/site-config";
 import { getPublishedJobs, jobTypeLabel } from "@/lib/jobs";
 import { pageMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+// Published job postings change rarely and are identical for every visitor, so
+// prerender and refresh on a window instead of rendering per request. The old
+// `force-dynamic` sent `Cache-Control: no-store`, which made these the slowest
+// and least crawl-friendly pages on the site. A newly published or pulled job
+// goes live within 5 minutes.
+export const revalidate = 300;
 
 export const metadata: Metadata = pageMetadata({
   title: "Careers",

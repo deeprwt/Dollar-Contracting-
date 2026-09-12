@@ -14,6 +14,25 @@ type PageMetaInput = {
   absoluteTitle?: string;
 };
 
+/** Google truncates around here; past it the tail is wasted. */
+const DESCRIPTION_MAX = 160;
+
+/**
+ * Normalise a description for use in a <meta> tag.
+ *
+ * Descriptions that come from the database (job summaries, typed into the admin
+ * as multi-line text) arrive with raw newlines and run well past what Google
+ * renders. Collapse the whitespace and trim at a word boundary so every page
+ * emits a single clean line.
+ */
+function cleanDescription(input: string): string {
+  const text = input.replace(/\s+/g, " ").trim();
+  if (text.length <= DESCRIPTION_MAX) return text;
+  const cut = text.slice(0, DESCRIPTION_MAX);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).replace(/[,;:.\s]+$/, "")}…`;
+}
+
 /**
  * Build a complete, self-consistent Metadata object for a page: canonical URL,
  * Open Graph and Twitter cards. Next.js *replaces* (does not merge) the parent
@@ -28,7 +47,7 @@ export function pageMetadata({
   image,
   absoluteTitle,
 }: PageMetaInput): Metadata {
-  const desc = description ?? siteConfig.description;
+  const desc = cleanDescription(description ?? siteConfig.description);
   const ogTitle =
     absoluteTitle ??
     (title ? `${title} | ${siteConfig.name}` : `${siteConfig.name} — ${siteConfig.tagline}`);
@@ -43,7 +62,7 @@ export function pageMetadata({
       title: ogTitle,
       description: desc,
       url: path,
-      siteName: siteConfig.name,
+      siteName: siteConfig.siteName,
       locale: "en_CA",
       type: "website",
       images: [{ url: img, width: 1200, height: 630, alt: siteConfig.name }],
