@@ -51,6 +51,18 @@ export const metadata: Metadata = {
   publisher: siteConfig.name,
   category: "Construction",
   formatDetection: { telephone: true, address: true, email: true },
+  // Icons live in public/ and are declared here rather than via the app/ file
+  // convention, which appends a content-hash query (?favicon.xxxx.ico). Plain
+  // URLs give Google's favicon crawler one stable address. Because nothing
+  // cache-busts these any more, bump the filename (favicon-v4.png, ...) when
+  // the artwork changes.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon-v3.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   robots: {
     index: true,
     follow: true,

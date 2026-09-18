@@ -4,11 +4,10 @@ import { siteConfig } from "@/lib/site-config";
 // Web app manifest. Browsers read this for the install prompt and the
 // home-screen icon.
 //
-// The <link rel="icon"> tags come from the app/ file convention instead:
-// src/app/favicon.ico, src/app/icon.png and src/app/apple-icon.png are picked
-// up automatically and emitted into <head>. Those are hashed by Next, so the
-// manifest points at the stable /icons/* copies in public/ — an install
-// prompt should not break when a content hash moves.
+// The <link rel="icon"> tags are declared separately in the root layout's
+// `metadata.icons` (public/favicon.ico, favicon-v3.png, apple-touch-icon.png).
+// The manifest uses its own /icons/* set because install prompts want the
+// 192/512 and maskable variants.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${siteConfig.name} — ${siteConfig.tagline}`,
