@@ -8,11 +8,22 @@ type PageMetaInput = {
   /** Canonical path, e.g. "/about" or "/services/concrete-work". Resolved against metadataBase. */
   path: string;
   keywords?: readonly string[];
-  /** OG/Twitter image path (defaults to the site-wide /og.png). */
-  image?: string;
+  /** OG/Twitter image path or URL (defaults to the site-wide /og.png). */
+  image?: string | PageImage;
   /** Set an exact <title> that ignores the template (used on the home page). */
   absoluteTitle?: string;
+  /** Marks the page as an article (blog post) for Open Graph. */
+  article?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    authors?: string[];
+    section?: string;
+    tags?: string[];
+  };
+  robots?: Metadata["robots"];
 };
+
+type PageImage = { url: string; width?: number; height?: number; alt?: string };
 
 /** Google truncates around here; past it the tail is wasted. */
 const DESCRIPTION_MAX = 160;
@@ -46,32 +57,41 @@ export function pageMetadata({
   keywords,
   image,
   absoluteTitle,
+  article,
+  robots,
 }: PageMetaInput): Metadata {
   const desc = cleanDescription(description ?? siteConfig.description);
   const ogTitle =
     absoluteTitle ??
     (title ? `${title} | ${siteConfig.name}` : `${siteConfig.name} — ${siteConfig.tagline}`);
-  const img = image ?? "/og.png";
+  const img: PageImage =
+    typeof image === "object"
+      ? image
+      : { url: image ?? "/og.png", width: 1200, height: 630 };
+  const ogImage = { alt: siteConfig.name, ...img };
+  const openGraphBase = {
+    title: ogTitle,
+    description: desc,
+    url: path,
+    siteName: siteConfig.siteName,
+    locale: "en_CA",
+    images: [ogImage],
+  };
 
   return {
     title: absoluteTitle ? { absolute: absoluteTitle } : title,
     description: desc,
     keywords: keywords ? [...keywords] : [...siteConfig.keywords],
     alternates: { canonical: path },
-    openGraph: {
-      title: ogTitle,
-      description: desc,
-      url: path,
-      siteName: siteConfig.siteName,
-      locale: "en_CA",
-      type: "website",
-      images: [{ url: img, width: 1200, height: 630, alt: siteConfig.name }],
-    },
+    ...(robots ? { robots } : {}),
+    openGraph: article
+      ? { ...openGraphBase, type: "article", ...article }
+      : { ...openGraphBase, type: "website" },
     twitter: {
       card: "summary_large_image",
       title: ogTitle,
       description: desc,
-      images: [img],
+      images: [img.url],
     },
   };
 }

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Briefcase, Inbox, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Briefcase, Inbox, Newspaper, LogOut, ExternalLink } from "lucide-react";
 import { signOutAction } from "@/app/admin/actions/auth";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
   { href: "/admin/applications", label: "Applications", icon: Inbox },
+  { href: "/admin/blog", label: "Blog", icon: Newspaper },
 ];
 
 export function AdminSidebar({ email }: { email: string }) {

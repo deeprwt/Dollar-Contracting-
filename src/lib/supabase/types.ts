@@ -1,5 +1,7 @@
-// Row types matching the schema in `supabase/schema.sql`.
-// Keep these in sync with that file if you change the SQL.
+// Row types matching the schema in `supabase/schema.sql` and `supabase/blog.sql`.
+// Keep these in sync with those files if you change the SQL.
+
+import type { Block } from "@/lib/blog/blocks";
 
 export type JobType = "full-time" | "part-time" | "contract" | "apprenticeship";
 
@@ -49,3 +51,34 @@ export type Application = {
   notes: string | null;
   created_at: string;
 };
+
+export type BlogStatus = "draft" | "published";
+
+export type BlogPost = {
+  id: string;
+  slug: string;
+  previous_slugs: string[];
+  title: string;
+  excerpt: string;
+  // Validated against the block model in `src/lib/blog/blocks.ts` on save.
+  content: Block[];
+  cover_image_path: string | null;
+  cover_image_alt: string | null;
+  cover_image_width: number | null;
+  cover_image_height: number | null;
+  category: string | null;
+  category_slug: string | null;
+  tags: string[];
+  author_name: string;
+  status: BlogStatus;
+  published_at: string | null;
+  is_featured: boolean;
+  reading_minutes: number;
+  seo_title: string | null;
+  seo_description: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+// Columns needed to render a post card — everything except the heavy `content`.
+export type BlogPostSummary = Omit<BlogPost, "content" | "previous_slugs">;

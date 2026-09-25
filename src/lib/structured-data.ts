@@ -2,7 +2,8 @@ import { siteConfig } from "./site-config";
 import { services } from "./services";
 import type { Service, Faq } from "./services";
 import type { Location } from "./locations";
-import type { Job } from "./supabase/types";
+import type { BlogPost, Job } from "./supabase/types";
+import { blogImageUrl } from "./blog/images";
 
 /** Stable @id for the business node so other nodes can reference it. */
 const BUSINESS_ID = `${siteConfig.url}/#business`;
@@ -225,6 +226,51 @@ export function jobPostingLd(job: Job) {
         addressCountry: siteConfig.address.countryCode,
       },
     },
+  };
+}
+
+const BLOG_ID = `${siteConfig.url}/blog#blog`;
+
+/** Blog node for the /blog index — the container each BlogPosting is part of. */
+export function blogLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": BLOG_ID,
+    name: `${siteConfig.name} Blog`,
+    url: `${siteConfig.url}/blog`,
+    inLanguage: "en-CA",
+    publisher: { "@id": BUSINESS_ID },
+  };
+}
+
+/** BlogPosting node for a single post — eligible for article rich results. */
+export function blogPostingLd(post: BlogPost) {
+  const url = `${siteConfig.url}/blog/${post.slug}`;
+  // Posts credited to the company point at the business node; anyone else is a Person.
+  const author =
+    post.author_name === siteConfig.name
+      ? { "@type": "Organization", "@id": BUSINESS_ID, name: siteConfig.name, url: siteConfig.url }
+      : { "@type": "Person", name: post.author_name };
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${url}#article`,
+    headline: post.title.slice(0, 110),
+    description: post.seo_description || post.excerpt,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    image: [
+      post.cover_image_path ? blogImageUrl(post.cover_image_path) : `${siteConfig.url}/og.png`,
+    ],
+    ...(post.published_at ? { datePublished: post.published_at } : {}),
+    dateModified: post.updated_at,
+    author,
+    publisher: { "@id": BUSINESS_ID },
+    isPartOf: { "@id": BLOG_ID },
+    inLanguage: "en-CA",
+    ...(post.category ? { articleSection: post.category } : {}),
+    ...(post.tags.length ? { keywords: post.tags.map((t) => t.replace(/-/g, " ")).join(", ") } : {}),
   };
 }
 

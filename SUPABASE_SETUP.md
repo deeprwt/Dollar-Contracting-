@@ -63,6 +63,24 @@ I'll write them to `.env.local` (which is gitignored, so they don't get committe
 
 ---
 
+## 7. Set up the blog
+
+1. Sidebar → **SQL Editor** → **+ New query**.
+2. Paste the contents of `supabase/blog.sql` and click **Run**. It creates the `blog_posts` table and a public `blog` storage bucket for post images. It's safe to run again.
+3. Sidebar → **Storage**: you should now see a `blog` bucket marked **Public**.
+
+Then write posts at `/admin/blog`. Images upload straight from the editor to that bucket (resized to at most 2400px first), and published posts appear at `/blog/<slug>`.
+
+## 8. Turn off public sign-ups (important)
+
+The admin treats **every signed-in Supabase user as an admin**. If sign-ups are left open, anyone could create an account with the public anon key and then edit jobs and blog posts.
+
+1. Sidebar → **Authentication** → **Sign In / Providers** (called **Providers** on some dashboards).
+2. Turn **off** "Allow new users to sign up".
+3. Add admins from **Authentication → Users → Add user** instead (as in step 4).
+
+---
+
 ## What's free vs. paid?
 
 - **Free tier**: 500 MB database, 1 GB file storage, 50,000 monthly active users, 5 GB bandwidth. For a contractor site this lasts indefinitely.

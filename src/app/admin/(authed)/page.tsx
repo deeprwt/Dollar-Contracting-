@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, Inbox, Eye, ArrowUpRight } from "lucide-react";
+import { Briefcase, Inbox, Eye, ArrowUpRight, Newspaper } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,8 @@ export default async function AdminDashboardPage() {
     { count: applicationsTotal },
     { count: applicationsNew },
     { data: recentApps },
+    { count: postsLive },
+    { count: postsDraft },
   ] = await Promise.all([
     supabase.from("jobs").select("id", { count: "exact", head: true }),
     supabase
@@ -29,6 +31,14 @@ export default async function AdminDashboardPage() {
       .select("id, name, position, created_at, status")
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("blog_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published"),
+    supabase
+      .from("blog_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "draft"),
   ]);
 
   const stats = [
@@ -46,6 +56,13 @@ export default async function AdminDashboardPage() {
       href: "/admin/applications",
       icon: Inbox,
     },
+    {
+      label: "Blog posts",
+      value: postsLive ?? 0,
+      sub: `${postsDraft ?? 0} draft${postsDraft === 1 ? "" : "s"}`,
+      href: "/admin/blog",
+      icon: Newspaper,
+    },
   ];
 
   return (
@@ -53,11 +70,11 @@ export default async function AdminDashboardPage() {
       <div>
         <h1 className="heading-display text-3xl">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Quick overview of your hiring pipeline.
+          Quick overview of your hiring pipeline and blog.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((s) => {
           const Icon = s.icon;
           return (
